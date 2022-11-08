@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace LibP2P.Crypto.Tests
 {
     public class Ed25519Tests
     {
-        [Fact]
+        [Test]
         public void TestBasicSignAndVerify()
         {
             var pair = KeyPair.Generate(KeyType.Ed25519);
@@ -20,7 +20,7 @@ namespace LibP2P.Crypto.Tests
             Assert.False(ok);
         }
 
-        [Fact]
+        [Test]
         public void TestSignZero()
         {
             var pair = KeyPair.Generate(KeyType.Ed25519);
@@ -32,7 +32,7 @@ namespace LibP2P.Crypto.Tests
             Assert.True(ok);
         }
 
-        [Fact]
+        [Test]
         public void TestMarshalLoop()
         {
             var pair = KeyPair.Generate(KeyType.Ed25519);
@@ -40,14 +40,14 @@ namespace LibP2P.Crypto.Tests
             var privB = pair.PrivateKey.Bytes;
             var privNew = PrivateKey.Unmarshal(privB);
 
-            Assert.Equal(pair.PrivateKey, privNew);
-            Assert.Equal(privNew, pair.PrivateKey);
+            Assert.AreEqual(pair.PrivateKey, privNew);
+            Assert.AreEqual(privNew, pair.PrivateKey);
 
             var pubB = pair.PublicKey.Bytes;
             var pubNew = PublicKey.Unmarshal(pubB);
 
-            Assert.Equal(pair.PublicKey, pubNew);
-            Assert.Equal(pubNew, pair.PublicKey);
+            Assert.AreEqual(pair.PublicKey, pubNew);
+            Assert.AreEqual(pubNew, pair.PublicKey);
         }
 
     }

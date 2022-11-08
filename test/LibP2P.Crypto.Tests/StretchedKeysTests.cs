@@ -4,13 +4,13 @@ using System.Text;
 using LibP2P.Utilities.Extensions;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
-using Xunit;
+using NUnit.Framework;
 
 namespace LibP2P.Crypto.Tests
 {
     public class StretchedKeysTests
     {
-        [Fact]
+        [Test]
         public void CanStretchKeysUsingBCL()
         {
             var ekeypair1 = EphemeralKeyPair.Generate("P-256");
@@ -49,21 +49,21 @@ namespace LibP2P.Crypto.Tests
                     mac.Key = stretched2.Item1.MacKey;
                     var mark = encoded.Length - (mac.HashSize/8);
                     var digest = encoded.Skip(mark).ToArray();
-                    Assert.Equal(mac.ComputeHash(encoded, 0, mark), digest);
+                    Assert.AreEqual(mac.ComputeHash(encoded, 0, mark), digest);
 
                     decoded = decryptor.TransformFinalBlock(encoded, 0, mark);
                 }
             }
 
-            Assert.Equal(Encoding.UTF8.GetString(decoded), Encoding.UTF8.GetString(raw));
+            Assert.AreEqual(Encoding.UTF8.GetString(decoded), Encoding.UTF8.GetString(raw));
         }
 
         [Theory]
-        [InlineData("P-256", "AES-128", "SHA256")]
-        [InlineData("P-256", "AES-256", "SHA256")]
-        [InlineData("curve25519", "AES-256", "SHA256")]
-        [InlineData("P-256", "AES-256", "SHA512")]
-        [InlineData("P-256", "Blowfish", "SHA256")]
+        [TestCase(new object[] { "P-256", "AES-128", "SHA256" })]
+        [TestCase(new object[] { "P-256", "AES-256", "SHA256" })]
+        [TestCase(new object[] { "curve25519", "AES-256", "SHA256" })]
+        [TestCase(new object[] { "P-256", "AES-256", "SHA512" })]
+        [TestCase(new object[] { "P-256", "Blowfish", "SHA256" })]
         public void CanStretchKeysUsingBouncyCastle(string curve, string cipher, string hash)
         {
             var ekeypair1 = EphemeralKeyPair.Generate(curve);
@@ -95,13 +95,13 @@ namespace LibP2P.Crypto.Tests
             var mac = MacUtilities.GetMac(hash);
             mac.Init(new KeyParameter(stretched2.Item1.MacKey));
             var digest = encoded.Slice(encoded.Length - mac.GetMacSize());
-            Assert.Equal(MacUtilities.DoFinal(mac, encoded.Slice(0, encoded.Length - digest.Length)), digest);
+            Assert.AreEqual(MacUtilities.DoFinal(mac, encoded.Slice(0, encoded.Length - digest.Length)), digest);
 
             decoded = decryptor.DoFinal(encoded, 0, encoded.Length - digest.Length);
-            Assert.Equal(Encoding.UTF8.GetString(decoded), Encoding.UTF8.GetString(raw));
+            Assert.AreEqual(Encoding.UTF8.GetString(decoded), Encoding.UTF8.GetString(raw));
         }
 
-        [Fact]
+        [Test]
         public void GoInterop()
         {
             var k1 = new
@@ -125,13 +125,13 @@ namespace LibP2P.Crypto.Tests
 
             var keys = StretchedKeys.Generate("AES-256", "SHA256", new byte[] { 195, 191, 209, 165, 209, 201, 127, 122, 136, 111, 31, 66, 111, 68, 38, 155, 216, 204, 46, 181, 200, 188, 170, 204, 104, 74, 239, 251, 173, 114, 222, 234 });
 
-            Assert.Equal(keys.Item1.IV, k1.iv);
-            Assert.Equal(keys.Item1.CipherKey, k1.cipherKey);
-            Assert.Equal(keys.Item1.MacKey, k1.macKey);
+            Assert.AreEqual(keys.Item1.IV, k1.iv);
+            Assert.AreEqual(keys.Item1.CipherKey, k1.cipherKey);
+            Assert.AreEqual(keys.Item1.MacKey, k1.macKey);
 
-            Assert.Equal(keys.Item2.IV, k2.iv);
-            Assert.Equal(keys.Item2.CipherKey, k2.cipherKey);
-            Assert.Equal(keys.Item2.MacKey, k2.macKey);
+            Assert.AreEqual(keys.Item2.IV, k2.iv);
+            Assert.AreEqual(keys.Item2.CipherKey, k2.cipherKey);
+            Assert.AreEqual(keys.Item2.MacKey, k2.macKey);
         }
     }
 }
